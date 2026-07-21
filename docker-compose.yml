@@ -1,0 +1,32 @@
+services:
+  app:
+    build: .
+    container_name: biblioteca_app
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_DATABASE: biblioteca
+      DB_USERNAME: biblioteca_user
+      DB_PASSWORD: biblioteca_pass
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16
+    container_name: biblioteca_db
+    restart: always
+    environment:
+      POSTGRES_DB: biblioteca
+      POSTGRES_USER: biblioteca_user
+      POSTGRES_PASSWORD: biblioteca_pass
+    ports:
+      - "5432:5432"
+    volumes:
+      - biblioteca_pgdata:/var/lib/postgresql/data
+
+volumes:
+  biblioteca_pgdata:
