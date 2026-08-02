@@ -18,6 +18,30 @@ $router->get('/livros/novo', 'LivroController', 'create');
 $router->post('/livros', 'LivroController', 'store');
 $router->get('/livros/{id}', 'LivroController', 'show');
 
+// Autores
+$router->get('/autores', 'AutorController', 'index');
+$router->get('/autores/novo', 'AutorController', 'create');
+$router->post('/autores', 'AutorController', 'store');
+$router->get('/autores/{id}/editar', 'AutorController', 'edit');
+$router->put('/autores/{id}', 'AutorController', 'update');
+$router->delete('/autores/{id}', 'AutorController', 'destroy');
+
+// Categorias
+$router->get('/categorias', 'CategoriaController', 'index');
+$router->get('/categorias/novo', 'CategoriaController', 'create');
+$router->post('/categorias', 'CategoriaController', 'store');
+$router->get('/categorias/{id}/editar', 'CategoriaController', 'edit');
+$router->put('/categorias/{id}', 'CategoriaController', 'update');
+$router->delete('/categorias/{id}', 'CategoriaController', 'destroy');
+
+// Editoras
+$router->get('/editoras', 'EditoraController', 'index');
+$router->get('/editoras/novo', 'EditoraController', 'create');
+$router->post('/editoras', 'EditoraController', 'store');
+$router->get('/editoras/{id}/editar', 'EditoraController', 'edit');
+$router->put('/editoras/{id}', 'EditoraController', 'update');
+$router->delete('/editoras/{id}', 'EditoraController', 'destroy');
+
 // As rotas de edição/exclusão (PUT /livros/{id} e DELETE /livros/{id})
 // serão adicionadas na Entrega Parcial 4, junto da implementação do
 // CRUD completo (update e delete).

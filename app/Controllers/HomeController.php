@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Core\Controller;
+use App\Models\Livro;
 
 class HomeController extends Controller
 {
@@ -13,8 +14,8 @@ class HomeController extends Controller
     {
         $this->render('home/index', [
             'title' => 'Início',
-            'totalLivros' => 4,   // valor fixo por enquanto — virá do banco a partir da Entrega 3
-            'totalEmprestimosAtivos' => 2,
+            'totalLivros' => Livro::count(),
+            'totalEmprestimosAtivos' => 0, // será implementado na Entrega Parcial 5 (empréstimos)
         ]);
     }
 }

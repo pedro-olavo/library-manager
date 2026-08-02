@@ -33,6 +33,9 @@
         <nav>
             <a href="/">Início</a>
             <a href="/livros">Livros</a>
+            <a href="/autores">Autores</a>
+            <a href="/categorias">Categorias</a>
+            <a href="/editoras">Editoras</a>
         </nav>
     </header>
 

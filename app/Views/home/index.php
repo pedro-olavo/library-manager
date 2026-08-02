@@ -1,7 +1,8 @@
 <h1>Bem-vindo(a) ao Sistema de Biblioteca</h1>
 <p style="margin-top: 10px; color: #555;">
-    Painel inicial da aplicação. Os números abaixo ainda são estáticos e serão conectados
-    ao banco de dados PostgreSQL a partir da Entrega Parcial 3.
+    Painel inicial da aplicação. O total de livros já é consultado diretamente do banco
+    de dados PostgreSQL via PDO. O indicador de empréstimos ativos será implementado
+    a partir da Entrega Parcial 5.
 </p>
 
 <div style="display: flex; gap: 20px; margin-top: 24px;">
