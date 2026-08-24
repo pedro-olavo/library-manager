@@ -1,6 +1,6 @@
 {
     "name": "pedro-olavo/library-manager",
-    "description": "Sistema de Biblioteca - projeto da disciplina de Desenvolvimento Web (UNIVASF/FACAPE)",
+    "description": "Sistema de Biblioteca - projeto da disciplina de Desenvolvimento Web (UNIVASF)",
     "type": "project",
     "require": {
         "php": ">=8.1"

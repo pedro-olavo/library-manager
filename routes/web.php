@@ -12,6 +12,19 @@ use App\Core\Router;
 // Início
 $router->get('/', 'HomeController', 'index');
 
+// Autenticação
+$router->get('/login', 'AuthController', 'showLogin');
+$router->post('/login', 'AuthController', 'login');
+$router->post('/logout', 'AuthController', 'logout');
+
+// Usuários (gestão de perfis de acesso — apenas administrador)
+$router->get('/usuarios', 'UsuarioController', 'index');
+$router->get('/usuarios/novo', 'UsuarioController', 'create');
+$router->post('/usuarios', 'UsuarioController', 'store');
+$router->get('/usuarios/{id}/editar', 'UsuarioController', 'edit');
+$router->put('/usuarios/{id}', 'UsuarioController', 'update');
+$router->delete('/usuarios/{id}', 'UsuarioController', 'destroy');
+
 // Livros
 $router->get('/livros', 'LivroController', 'index');
 $router->get('/livros/novo', 'LivroController', 'create');

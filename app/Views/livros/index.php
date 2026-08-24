@@ -1,6 +1,10 @@
+<?php $podeGerenciar = in_array(\App\Core\Auth::role(), ['administrador', 'bibliotecario'], true); ?>
+
 <div style="display:flex; justify-content:space-between; align-items:center;">
     <h1>Livros</h1>
-    <a href="/livros/novo" class="btn btn-green">+ Novo Livro</a>
+    <?php if ($podeGerenciar): ?>
+        <a href="/livros/novo" class="btn btn-green">+ Novo Livro</a>
+    <?php endif; ?>
 </div>
 
 <?php if (!empty($success)): ?>
@@ -37,14 +41,16 @@
         <td><?= htmlspecialchars((string) ($livro['ano_publicacao'] ?? '—')) ?></td>
         <td>
             <a href="/livros/<?= $livro['id'] ?>">Ver</a>
-            &nbsp;|&nbsp;
-            <a href="/livros/<?= $livro['id'] ?>/editar">Editar</a>
-            &nbsp;|&nbsp;
-            <form method="POST" action="/livros/<?= $livro['id'] ?>" style="display:inline;"
-                  onsubmit="return confirm('Tem certeza que deseja excluir este livro?');">
-                <input type="hidden" name="_method" value="DELETE">
-                <button type="submit" style="border:none; background:none; color:#a12727; cursor:pointer; padding:0; font-size:13px; text-decoration:underline;">Excluir</button>
-            </form>
+            <?php if ($podeGerenciar): ?>
+                &nbsp;|&nbsp;
+                <a href="/livros/<?= $livro['id'] ?>/editar">Editar</a>
+                &nbsp;|&nbsp;
+                <form method="POST" action="/livros/<?= $livro['id'] ?>" style="display:inline;"
+                      onsubmit="return confirm('Tem certeza que deseja excluir este livro?');">
+                    <input type="hidden" name="_method" value="DELETE">
+                    <button type="submit" style="border:none; background:none; color:#a12727; cursor:pointer; padding:0; font-size:13px; text-decoration:underline;">Excluir</button>
+                </form>
+            <?php endif; ?>
         </td>
     </tr>
     <?php endforeach; ?>

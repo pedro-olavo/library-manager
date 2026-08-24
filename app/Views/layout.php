@@ -25,18 +25,43 @@
         .field-group { margin-bottom: 16px; }
         .field-group label { display: block; font-size: 13px; margin-bottom: 4px; }
         .field-group input, .field-group select { width: 100%; padding: 8px; border: 1px solid #999; border-radius: 4px; }
+        .user-box { display:flex; align-items:center; gap:14px; }
+        .user-box .quem { font-size: 13px; color:#dce3f0; }
+        .user-box .quem .perfil { color:#9fb3d6; }
+        .logout-btn { background:none; border:1px solid #5c6d8c; color:#dce3f0; border-radius:4px; padding:5px 12px; font-size:12px; cursor:pointer; }
     </style>
 </head>
 <body>
+    <?php
+        $usuarioLogado = \App\Core\Auth::user();
+        $perfil = \App\Core\Auth::role();
+        $podeGerenciarAcervo = in_array($perfil, ['administrador', 'bibliotecario'], true);
+        $ehAdministrador = $perfil === 'administrador';
+    ?>
     <header class="topbar">
         <a href="/">Sistema de Biblioteca</a>
+
+        <?php if ($usuarioLogado): ?>
         <nav>
             <a href="/">Início</a>
             <a href="/livros">Livros</a>
-            <a href="/autores">Autores</a>
-            <a href="/categorias">Categorias</a>
-            <a href="/editoras">Editoras</a>
+            <?php if ($podeGerenciarAcervo): ?>
+                <a href="/autores">Autores</a>
+                <a href="/categorias">Categorias</a>
+                <a href="/editoras">Editoras</a>
+            <?php endif; ?>
+            <?php if ($ehAdministrador): ?>
+                <a href="/usuarios">Usuários</a>
+            <?php endif; ?>
         </nav>
+
+        <div class="user-box">
+            <span class="quem"><?= htmlspecialchars($usuarioLogado['nome']) ?> <span class="perfil">(<?= htmlspecialchars($usuarioLogado['perfil']) ?>)</span></span>
+            <form method="POST" action="/logout">
+                <button type="submit" class="logout-btn">Sair</button>
+            </form>
+        </div>
+        <?php endif; ?>
     </header>
 
     <main>
@@ -44,7 +69,7 @@
     </main>
 
     <footer>
-        Sistema de Biblioteca &mdash; UNIVASF / FACAPE &mdash; 2026.1
+        Sistema de Biblioteca &mdash; UNIVASF &mdash; 2026.1
     </footer>
 </body>
 </html>

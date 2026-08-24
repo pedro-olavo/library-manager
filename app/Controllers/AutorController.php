@@ -2,11 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Autor;
 
 class AutorController extends Controller
 {
+    public function __construct()
+    {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+    }
+
     /** GET /autores */
     public function index(): void
     {

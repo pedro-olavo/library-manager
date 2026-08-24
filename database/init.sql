@@ -96,3 +96,16 @@ INSERT INTO autor (nome, nacionalidade) VALUES
     ('Aluísio Azevedo', 'Brasileira'),
     ('Clarice Lispector', 'Brasileira')
 ON CONFLICT DO NOTHING;
+
+-- Usuários de demonstração (Entrega Parcial 5).
+-- Senhas em texto puro, apenas para referência da equipe durante o desenvolvimento
+-- e demonstração — NUNCA são armazenadas assim no banco (ver senha_hash abaixo,
+-- gerado com password_hash()/PASSWORD_BCRYPT em PHP):
+--   administrador@biblioteca.com / admin123
+--   bibliotecario@biblioteca.com / biblio123
+--   leitor@biblioteca.com        / leitor123
+INSERT INTO usuario (nome, email, senha_hash, perfil) VALUES
+    ('Administrador do Sistema', 'administrador@biblioteca.com', '$2y$10$VkLxDUa2/0Pk1JxpKSrJWem8B/hdMLhJkPniezsIKqhuoHDX5jpCm', 'administrador'),
+    ('Bibliotecário Padrão',     'bibliotecario@biblioteca.com', '$2y$10$7Ngd2Yy00C2hLn7hly.FQ.a9CnO0NnM5WWHmt7i49PIzsctO7Bgkq', 'bibliotecario'),
+    ('Leitor Demonstração',      'leitor@biblioteca.com',        '$2y$10$5Jo1TvDJeF.WgXYCbdzKT.tdqeVULajkUYWhDvu.MC7ZWLykege.q', 'leitor')
+ON CONFLICT DO NOTHING;

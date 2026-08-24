@@ -2,6 +2,7 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Autor;
 use App\Models\Categoria;
@@ -14,9 +15,17 @@ use App\Models\Livro;
  * Entrega Parcial 3: Create (cadastro) e Read (listagem) via PDO.
  * Entrega Parcial 4: Update (edição) e Delete (exclusão) via PDO,
  * completando o CRUD da entidade principal do sistema.
+ * Entrega Parcial 5: acesso exige login; cadastro/edição/exclusão
+ * restritos aos perfis administrador e bibliotecário — leitores podem
+ * apenas consultar o acervo (index/show).
  */
 class LivroController extends Controller
 {
+    public function __construct()
+    {
+        Auth::requireLogin();
+    }
+
     /**
      * Lista os livros cadastrados.
      * GET /livros
@@ -58,6 +67,8 @@ class LivroController extends Controller
      */
     public function create(): void
     {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+
         $this->render('livros/form', array_merge($this->formLookups(), [
             'title'  => 'Novo Livro',
             'livro'  => null,
@@ -72,6 +83,8 @@ class LivroController extends Controller
      */
     public function store(): void
     {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+
         [$data, $errors] = $this->validate($_POST);
 
         if (!empty($errors)) {
@@ -105,6 +118,8 @@ class LivroController extends Controller
      */
     public function edit(string $id): void
     {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+
         $livro = Livro::find((int) $id);
 
         if ($livro === null) {
@@ -127,6 +142,8 @@ class LivroController extends Controller
      */
     public function update(string $id): void
     {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+
         $livroAtual = Livro::find((int) $id);
 
         if ($livroAtual === null) {
@@ -168,6 +185,8 @@ class LivroController extends Controller
      */
     public function destroy(string $id): void
     {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+
         Livro::delete((int) $id);
         $this->redirect('/livros?success=excluido');
     }

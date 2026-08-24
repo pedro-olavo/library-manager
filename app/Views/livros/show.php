@@ -1,3 +1,5 @@
+<?php $podeGerenciar = in_array(\App\Core\Auth::role(), ['administrador', 'bibliotecario'], true); ?>
+
 <a href="/livros">&larr; Voltar para a listagem</a>
 
 <h1 style="margin-top: 14px;"><?= htmlspecialchars($livro['titulo']) ?></h1>
@@ -10,6 +12,7 @@
     <tr><th>Ano de publicação</th><td><?= htmlspecialchars((string) ($livro['ano_publicacao'] ?? '—')) ?></td></tr>
 </table>
 
+<?php if ($podeGerenciar): ?>
 <div style="margin-top: 20px; display:flex; gap:12px;">
     <a href="/livros/<?= $livro['id'] ?>/editar" class="btn">Editar</a>
     <form method="POST" action="/livros/<?= $livro['id'] ?>"
@@ -18,3 +21,4 @@
         <button type="submit" style="height:36px; padding:0 16px; background:#a12727; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px;">Excluir</button>
     </form>
 </div>
+<?php endif; ?>

@@ -2,11 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Categoria;
 
 class CategoriaController extends Controller
 {
+    public function __construct()
+    {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+    }
+
     /** GET /categorias */
     public function index(): void
     {

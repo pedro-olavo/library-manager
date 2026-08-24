@@ -2,11 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Livro;
 
 class HomeController extends Controller
 {
+    public function __construct()
+    {
+        Auth::requireLogin();
+    }
+
     /**
      * Página inicial do sistema (dashboard simplificado).
      */
@@ -15,7 +21,7 @@ class HomeController extends Controller
         $this->render('home/index', [
             'title' => 'Início',
             'totalLivros' => Livro::count(),
-            'totalEmprestimosAtivos' => 0, // será implementado na Entrega Parcial 5 (empréstimos)
+            'totalEmprestimosAtivos' => 0, // será implementado quando o módulo de empréstimos for adicionado
         ]);
     }
 }

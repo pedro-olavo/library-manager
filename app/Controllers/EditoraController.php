@@ -2,11 +2,17 @@
 
 namespace App\Controllers;
 
+use App\Core\Auth;
 use App\Core\Controller;
 use App\Models\Editora;
 
 class EditoraController extends Controller
 {
+    public function __construct()
+    {
+        Auth::requireRole(['administrador', 'bibliotecario']);
+    }
+
     /** GET /editoras */
     public function index(): void
     {

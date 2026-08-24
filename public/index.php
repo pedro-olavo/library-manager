@@ -3,13 +3,17 @@
 /**
  * Front Controller — ponto de entrada único da aplicação.
  * Todas as requisições HTTP são direcionadas para este arquivo
- * (ver public/.htaccess), que inicializa o autoload, o Router
- * e despacha a requisição para o Controller/Action correspondente.
+ * (ver public/.htaccess), que inicializa o autoload, a sessão,
+ * o Router e despacha a requisição para o Controller/Action
+ * correspondente.
  */
 
 require dirname(__DIR__) . '/app/autoload.php';
 
+use App\Core\Auth;
 use App\Core\Router;
+
+Auth::start();
 
 $router = new Router();
 
