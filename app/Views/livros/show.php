@@ -9,3 +9,12 @@
     <tr><th>ISBN</th><td><?= htmlspecialchars($livro['isbn'] ?? '—') ?></td></tr>
     <tr><th>Ano de publicação</th><td><?= htmlspecialchars((string) ($livro['ano_publicacao'] ?? '—')) ?></td></tr>
 </table>
+
+<div style="margin-top: 20px; display:flex; gap:12px;">
+    <a href="/livros/<?= $livro['id'] ?>/editar" class="btn">Editar</a>
+    <form method="POST" action="/livros/<?= $livro['id'] ?>"
+          onsubmit="return confirm('Tem certeza que deseja excluir este livro?');">
+        <input type="hidden" name="_method" value="DELETE">
+        <button type="submit" style="height:36px; padding:0 16px; background:#a12727; color:#fff; border:none; border-radius:4px; cursor:pointer; font-size:13px;">Excluir</button>
+    </form>
+</div>

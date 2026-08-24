@@ -106,4 +106,43 @@ class Livro
 
         return (int) $stmt->fetchColumn();
     }
+
+    /**
+     * Atualiza um livro existente.
+     *
+     * @param int   $id   Id do livro a ser atualizado.
+     * @param array $data ['titulo', 'isbn', 'ano_publicacao', 'categoria_id', 'editora_id', 'autor_id']
+     */
+    public static function update(int $id, array $data): void
+    {
+        $stmt = Database::getConnection()->prepare("
+            UPDATE livro
+            SET titulo = :titulo,
+                isbn = :isbn,
+                ano_publicacao = :ano_publicacao,
+                categoria_id = :categoria_id,
+                editora_id = :editora_id,
+                autor_id = :autor_id
+            WHERE id = :id
+        ");
+
+        $stmt->execute([
+            'id'             => $id,
+            'titulo'         => $data['titulo'],
+            'isbn'           => $data['isbn'] ?: null,
+            'ano_publicacao' => $data['ano_publicacao'] ?: null,
+            'categoria_id'   => $data['categoria_id'] ?: null,
+            'editora_id'     => $data['editora_id'] ?: null,
+            'autor_id'       => $data['autor_id'] ?: null,
+        ]);
+    }
+
+    /**
+     * Remove um livro do banco de dados.
+     */
+    public static function delete(int $id): void
+    {
+        $stmt = Database::getConnection()->prepare('DELETE FROM livro WHERE id = :id');
+        $stmt->execute(['id' => $id]);
+    }
 }

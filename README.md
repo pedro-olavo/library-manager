@@ -1,25 +1,35 @@
 # Sistema de Biblioteca
 
-Projeto da disciplina de Desenvolvimento Web — UNIVASF / FACAPE (2026.1).
+Projeto da disciplina de Desenvolvimento Web — UNIVASF (Análise e Desenvolvimento de Sistemas), 2026.1.
 Equipe: Pedro Olavo Negreiro Rodrigues, Heloísa Cardoso Olimpio Barreto.
 
-## Entrega Parcial 3 — CRUD Inicial (Create + Read)
+## Entrega Parcial 4 — CRUD Completo
 
-Esta etapa entrega:
-- Conexão com o banco PostgreSQL via PDO (`App\Core\Database`, Singleton);
-- Esquema completo do banco criado automaticamente (`database/init.sql`), refletindo o
-  DER da Entrega Parcial 1, com dados iniciais (seed) de categorias, editoras e autores;
-- **Create:** cadastro de livros (`app/Models/Livro.php::create()`), incluindo a
-  associação N:N com autores (tabela `livro_autor`), dentro de uma transação;
-- **Read:** listagem (`Livro::all()`) e detalhe (`Livro::find()`) de livros, com
-  `JOIN`/`STRING_AGG` trazendo categoria, editora e autores já formatados;
-- Validação server-side básica no cadastro (título obrigatório, ano válido, ao menos
-  um autor selecionado), com mensagens de erro exibidas na própria tela do formulário;
-- Painel inicial (dashboard) já consultando a quantidade real de livros cadastrados.
+Esta etapa completa o CRUD da entidade principal (Livro):
+- **Create** e **Read**: implementados na Entrega Parcial 3;
+- **Update**: edição de livros (`Livro::update()`), com formulário pré-preenchido
+  e validação idêntica à do cadastro;
+- **Delete**: exclusão de livros (`Livro::delete()`), com confirmação via JavaScript
+  antes de excluir;
+- Mensagens de sucesso e erro para todas as operações (criado / atualizado / excluído).
 
-Testado localmente de ponta a ponta (schema → formulário vazio → cadastro válido →
-listagem atualizada → contador do dashboard → cadastro inválido exibindo os 3 erros
-esperados) antes desta entrega.
+O formulário de cadastro e edição de livros foi unificado em uma única view
+(`app/Views/livros/form.php`), seguindo o mesmo padrão já usado em Autor, Categoria
+e Editora — reduzindo duplicação de código.
+
+Também já estão prontos, desde ajustes anteriores:
+- **CRUD completo de Autor** (`/autores`) — inclui nome e nacionalidade;
+- **CRUD completo de Categoria** (`/categorias`);
+- **CRUD completo de Editora** (`/editoras`).
+
+> **Nota sobre o relacionamento Livro↔Autor:** o DER original (Entrega Parcial 1)
+> previa relacionamento N:N via tabela associativa (`livro_autor`). A equipe optou
+> por simplificar para N:1 (um autor por livro, selecionado via dropdown), decisão
+> registrada em `database/init.sql`.
+
+Testado localmente de ponta a ponta contra um PostgreSQL real antes desta entrega:
+criar → editar (formulário pré-preenchido) → confirmar alteração na listagem e no
+detalhe → validação bloqueando título/autor vazios → excluir → confirmar remoção.
 
 ## Estrutura de pastas
 
@@ -30,21 +40,27 @@ library-manager/
 │   └── .htaccess        # Rewrite para roteamento amigável
 ├── app/
 │   ├── Core/
-│   │   ├── Router.php       # Sistema de rotas
+│   │   ├── Router.php       # Sistema de rotas (GET/POST/PUT/DELETE, com _method override)
 │   │   ├── Controller.php   # Controller base (método render/redirect)
-│   │   └── Database.php     # Conexão PDO (Singleton) — em uso desde a Entrega 3
+│   │   └── Database.php     # Conexão PDO (Singleton)
 │   ├── Models/
-│   │   ├── Livro.php        # Create + Read (all/find) via PDO
-│   │   ├── Categoria.php    # Lista de categorias (dropdown do formulário)
-│   │   ├── Editora.php      # Lista de editoras (dropdown do formulário)
-│   │   └── Autor.php        # Lista de autores (checkboxes do formulário)
+│   │   ├── Livro.php        # CRUD completo via PDO
+│   │   ├── Autor.php        # CRUD completo
+│   │   ├── Categoria.php    # CRUD completo
+│   │   └── Editora.php      # CRUD completo
 │   ├── Controllers/
 │   │   ├── HomeController.php
-│   │   └── LivroController.php
+│   │   ├── LivroController.php
+│   │   ├── AutorController.php
+│   │   ├── CategoriaController.php
+│   │   └── EditoraController.php
 │   ├── Views/
 │   │   ├── layout.php
 │   │   ├── home/index.php
-│   │   ├── livros/{index,show,create}.php
+│   │   ├── livros/{index,show,form}.php
+│   │   ├── autores/{index,form}.php
+│   │   ├── categorias/{index,form}.php
+│   │   ├── editoras/{index,form}.php
 │   │   └── errors/404.php
 │   └── autoload.php     # Autoloader PSR-4 simples para o namespace App\
 ├── routes/
@@ -69,27 +85,32 @@ A aplicação ficará disponível em **http://localhost:8080**.
 Na primeira execução, o PostgreSQL cria automaticamente todas as tabelas e os dados
 iniciais (categorias, editoras, autores) a partir de `database/init.sql`.
 
-> Se você já tinha subido o projeto antes da Entrega 3 e o volume do banco (`biblioteca_pgdata`)
-> já existe, o script de inicialização **não roda de novo** (o Postgres só executa
+> Se o volume do banco (`biblioteca_pgdata`) já existe de uma execução anterior e o
+> schema mudou, o script de inicialização **não roda de novo** (o Postgres só executa
 > `/docker-entrypoint-initdb.d` em bancos novos). Nesse caso, rode:
 > ```bash
 > docker compose down -v
 > docker compose up --build
 > ```
-> para recriar o volume do zero com o schema atualizado.
+> **Atenção:** isso apaga os dados cadastrados no banco.
+> Rode apenas `docker compose down` (sem `-v`) no dia a dia, para preservar os dados.
 
-## Rotas disponíveis nesta etapa
+## Rotas disponíveis
 
-| Método | Rota           | Controller@Action           | Descrição                                   |
-|--------|----------------|------------------------------|-----------------------------------------------|
-| GET    | `/`            | HomeController@index         | Painel inicial (total de livros via banco)    |
-| GET    | `/livros`      | LivroController@index        | Listagem real, via PDO                        |
-| GET    | `/livros/novo` | LivroController@create        | Formulário de cadastro (dropdowns do banco)   |
-| POST   | `/livros`      | LivroController@store         | Cadastra o livro no banco (com validação)     |
-| GET    | `/livros/{id}` | LivroController@show          | Detalhes de um livro (via banco)              |
+| Método | Rota                  | Controller@Action        | Descrição                     |
+|--------|-----------------------|---------------------------|--------------------------------|
+| GET    | `/`                   | HomeController@index      | Painel inicial                 |
+| GET    | `/livros`             | LivroController@index     | Listagem                       |
+| GET    | `/livros/novo`        | LivroController@create    | Formulário de cadastro         |
+| POST   | `/livros`             | LivroController@store     | Cadastra                       |
+| GET    | `/livros/{id}`        | LivroController@show      | Detalhes                       |
+| GET    | `/livros/{id}/editar` | LivroController@edit      | Formulário de edição           |
+| PUT    | `/livros/{id}`        | LivroController@update    | Atualiza                       |
+| DELETE | `/livros/{id}`        | LivroController@destroy   | Exclui                         |
+
+O mesmo padrão (`index` / `novo` / `store` / `{id}/editar` / `update` / `destroy`)
+se repete para `/autores`, `/categorias` e `/editoras`.
 
 ## Próximas etapas
 
-- **Entrega Parcial 4:** Update e Delete de livros, mensagens de sucesso/erro completas.
-- **Entrega Parcial 5:** autenticação, sessões e perfis de acesso.
-
+- **Entrega Parcial 5:** autenticação, sessões, perfis de acesso e proteção de rotas.
