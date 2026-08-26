@@ -34,6 +34,16 @@ $router->put('/livros/{id}', 'LivroController', 'update');
 $router->delete('/livros/{id}', 'LivroController', 'destroy');
 $router->get('/livros/{id}', 'LivroController', 'show');
 
+// Exemplares (gerenciados a partir da tela de detalhes do livro)
+$router->post('/livros/{id}/exemplares', 'ExemplarController', 'store');
+$router->delete('/exemplares/{id}', 'ExemplarController', 'destroy');
+
+// Empréstimos
+$router->get('/emprestimos', 'EmprestimoController', 'index');
+$router->get('/emprestimos/novo', 'EmprestimoController', 'create');
+$router->post('/emprestimos', 'EmprestimoController', 'store');
+$router->post('/emprestimos/{id}/devolver', 'EmprestimoController', 'devolver');
+
 // Autores
 $router->get('/autores', 'AutorController', 'index');
 $router->get('/autores/novo', 'AutorController', 'create');

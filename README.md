@@ -3,6 +3,36 @@
 Projeto da disciplina de Desenvolvimento Web — UNIVASF (Análise e Desenvolvimento de Sistemas), 2026.1.
 Equipe: Pedro Olavo Negreiro Rodrigues, Heloísa Cardoso Olimpio Barreto.
 
+## Módulo de Empréstimos (preparação para o Projeto Final)
+
+Construído após a Entrega Parcial 5, antes da entrega final, para que o sistema
+cubra o ciclo completo de uso de uma biblioteca — não só cadastro de acervo, mas
+o empréstimo em si.
+
+- **Exemplares**: cada livro pode ter vários exemplares (cópias físicas), cada
+  um com código de patrimônio e status (`disponivel` / `emprestado` / `reservado`
+  / `manutencao`). Gerenciados diretamente na tela de detalhes do livro
+  (`app/Controllers/ExemplarController.php`);
+- **Empréstimos** (`app/Controllers/EmprestimoController.php`,
+  `app/Models/Emprestimo.php`):
+  - Registrar empréstimo: seleciona usuário + exemplar disponível + data
+    prevista de devolução; usa transação com `SELECT ... FOR UPDATE` para
+    evitar que dois empréstimos sejam criados para o mesmo exemplar ao mesmo
+    tempo;
+  - Registrar devolução: marca a data de devolução e libera o exemplar
+    automaticamente;
+  - Atraso é recalculado a cada listagem (`Emprestimo::markOverdue()`), sem
+    depender de um job agendado;
+  - **Controle de acesso**: leitores veem apenas os próprios empréstimos;
+    administrador/bibliotecário veem e gerenciam todos; registrar empréstimo
+    e devolução exige perfil administrador ou bibliotecário;
+- O painel inicial agora mostra a contagem real de empréstimos ativos
+  (antes era um valor fixo em zero).
+
+Testado de ponta a ponta contra um PostgreSQL real: cadastro de exemplar →
+registro de empréstimo → exemplar muda para "emprestado" → simulação de atraso
+→ devolução → exemplar volta a "disponível" → contadores do dashboard corretos.
+
 ## Entrega Parcial 5 — Autenticação e Controle de Acesso
 
 Esta etapa entrega:
@@ -55,7 +85,9 @@ library-manager/
 │   │   ├── Autor.php        # CRUD completo
 │   │   ├── Categoria.php    # CRUD completo
 │   │   ├── Editora.php      # CRUD completo
-│   │   └── Usuario.php      # CRUD completo + authenticate() (bcrypt)
+│   │   ├── Usuario.php      # CRUD completo + authenticate() (bcrypt)
+│   │   ├── Exemplar.php     # CRUD de cópias físicas de um livro
+│   │   └── Emprestimo.php   # create/registrarDevolucao/markOverdue
 │   ├── Controllers/
 │   │   ├── HomeController.php    # exige login
 │   │   ├── LivroController.php   # exige login; escrita exige admin/bibliotecário
@@ -63,7 +95,9 @@ library-manager/
 │   │   ├── CategoriaController.php
 │   │   ├── EditoraController.php
 │   │   ├── AuthController.php    # login/logout (público)
-│   │   └── UsuarioController.php # exige administrador
+│   │   ├── UsuarioController.php # exige administrador
+│   │   ├── ExemplarController.php   # exige admin/bibliotecário
+│   │   └── EmprestimoController.php # exige login; registrar exige admin/bibliotecário
 │   ├── Views/
 │   │   ├── layout.php       # menu adaptado ao perfil, usuário logado, botão sair
 │   │   ├── auth/login.php
@@ -73,6 +107,7 @@ library-manager/
 │   │   ├── categorias/{index,form}.php
 │   │   ├── editoras/{index,form}.php
 │   │   ├── usuarios/{index,form}.php
+│   │   ├── emprestimos/{index,form}.php
 │   │   └── errors/{404,403}.php
 │   └── autoload.php     # Autoloader PSR-4 simples para o namespace App\
 ├── routes/
@@ -121,9 +156,14 @@ a partir de `database/init.sql`.
 | GET/POST/PUT/DELETE | `/livros/...` (cadastro, edição, exclusão) | LivroController | Administrador / Bibliotecário |
 | GET/POST/PUT/DELETE | `/autores/...`, `/categorias/...`, `/editoras/...` | — | Administrador / Bibliotecário |
 | GET/POST/PUT/DELETE | `/usuarios/...` | UsuarioController | Administrador |
+| POST   | `/livros/{id}/exemplares` | ExemplarController@store   | Administrador / Bibliotecário |
+| DELETE | `/exemplares/{id}`        | ExemplarController@destroy | Administrador / Bibliotecário |
+| GET    | `/emprestimos`            | EmprestimoController@index | Autenticado (leitor vê só os próprios) |
+| GET/POST | `/emprestimos/novo`, `/emprestimos` | EmprestimoController@create/store | Administrador / Bibliotecário |
+| POST   | `/emprestimos/{id}/devolver` | EmprestimoController@devolver | Administrador / Bibliotecário |
 
 ## Próximas etapas
 
-- Módulo de empréstimos e reservas (tabelas `emprestimo` e `reserva` já existem
-  no schema, mas ainda não têm CRUD/telas associadas);
+- Reservas (a tabela `reserva` já existe no schema, mas ainda não tem CRUD/telas
+  associadas — um leitor não pode reservar um livro indisponível ainda);
 - Deploy da aplicação e documentação final (Projeto Final).

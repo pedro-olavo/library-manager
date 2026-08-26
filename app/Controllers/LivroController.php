@@ -7,6 +7,7 @@ use App\Core\Controller;
 use App\Models\Autor;
 use App\Models\Categoria;
 use App\Models\Editora;
+use App\Models\Exemplar;
 use App\Models\Livro;
 
 /**
@@ -56,8 +57,11 @@ class LivroController extends Controller
         }
 
         $this->render('livros/show', [
-            'title' => $livro['titulo'],
-            'livro' => $livro,
+            'title'      => $livro['titulo'],
+            'livro'      => $livro,
+            'exemplares' => Exemplar::allByLivro((int) $id),
+            'success'    => $_GET['success'] ?? null,
+            'error'      => $_GET['error'] ?? null,
         ]);
     }
 

@@ -45,6 +45,7 @@
         <nav>
             <a href="/">Início</a>
             <a href="/livros">Livros</a>
+            <a href="/emprestimos">Empréstimos</a>
             <?php if ($podeGerenciarAcervo): ?>
                 <a href="/autores">Autores</a>
                 <a href="/categorias">Categorias</a>

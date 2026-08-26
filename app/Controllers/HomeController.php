@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Core\Auth;
 use App\Core\Controller;
+use App\Models\Emprestimo;
 use App\Models\Livro;
 
 class HomeController extends Controller
@@ -18,10 +19,12 @@ class HomeController extends Controller
      */
     public function index(): void
     {
+        Emprestimo::markOverdue();
+
         $this->render('home/index', [
             'title' => 'Início',
             'totalLivros' => Livro::count(),
-            'totalEmprestimosAtivos' => 0, // será implementado quando o módulo de empréstimos for adicionado
+            'totalEmprestimosAtivos' => Emprestimo::countAtivos(),
         ]);
     }
 }
