@@ -27,17 +27,21 @@ class Exemplar
     }
 
     /**
-     * Lista todos os exemplares com status 'disponivel', já com o título
-     * do livro correspondente — usado no dropdown de registro de empréstimo.
+     * Lista os livros que possuem ao menos um exemplar disponível para
+     * empréstimo, com a contagem de cópias disponíveis de cada um.
+     * Usado no formulário de registro de empréstimo — o usuário escolhe
+     * o livro, e o sistema seleciona automaticamente qual exemplar sai.
      */
-    public static function allDisponiveis(): array
+    public static function livrosComDisponibilidade(): array
     {
         $sql = "
-            SELECT e.id, e.codigo_patrimonio, l.titulo AS livro_titulo
+            SELECT l.id AS livro_id, l.titulo, COUNT(e.id) AS disponiveis
             FROM exemplar e
             JOIN livro l ON l.id = e.livro_id
             WHERE e.status = 'disponivel'
-            ORDER BY l.titulo, e.codigo_patrimonio
+            GROUP BY l.id, l.titulo
+            HAVING COUNT(e.id) > 0
+            ORDER BY l.titulo
         ";
 
         return Database::getConnection()->query($sql)->fetchAll();

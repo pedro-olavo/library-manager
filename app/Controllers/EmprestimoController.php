@@ -15,6 +15,10 @@ use RuntimeException;
  * Qualquer usuário autenticado pode ver a listagem: leitores veem apenas
  * os próprios empréstimos, enquanto administrador/bibliotecário veem todos.
  * Registrar empréstimo e devolução é restrito a administrador/bibliotecário.
+ *
+ * O registro de empréstimo pede apenas o LIVRO (não o exemplar específico):
+ * o sistema seleciona automaticamente uma cópia disponível — ver
+ * Exemplar::livrosComDisponibilidade() e Emprestimo::create().
  */
 class EmprestimoController extends Controller
 {
@@ -57,11 +61,11 @@ class EmprestimoController extends Controller
         Auth::requireRole(['administrador', 'bibliotecario']);
 
         $this->render('emprestimos/form', [
-            'title'              => 'Registrar Empréstimo',
-            'usuarios'           => Usuario::all(),
-            'exemplaresDisponiveis' => Exemplar::allDisponiveis(),
-            'errors'             => [],
-            'old'                => [],
+            'title'    => 'Registrar Empréstimo',
+            'usuarios' => Usuario::all(),
+            'livrosDisponiveis' => Exemplar::livrosComDisponibilidade(),
+            'errors'   => [],
+            'old'      => [],
         ]);
     }
 
@@ -74,7 +78,7 @@ class EmprestimoController extends Controller
         Auth::requireRole(['administrador', 'bibliotecario']);
 
         $usuarioId = $_POST['usuario_id'] ?? '';
-        $exemplarId = $_POST['exemplar_id'] ?? '';
+        $livroId = $_POST['livro_id'] ?? '';
         $dataPrevista = trim($_POST['data_prevista_devolucao'] ?? '');
 
         $errors = [];
@@ -83,8 +87,8 @@ class EmprestimoController extends Controller
             $errors[] = 'Selecione o usuário.';
         }
 
-        if ($exemplarId === '') {
-            $errors[] = 'Selecione o exemplar a ser emprestado.';
+        if ($livroId === '') {
+            $errors[] = 'Selecione o livro a ser emprestado.';
         }
 
         $timestampPrevisto = $dataPrevista !== '' ? strtotime($dataPrevista) : false;
@@ -97,24 +101,24 @@ class EmprestimoController extends Controller
 
         if (!empty($errors)) {
             $this->render('emprestimos/form', [
-                'title'                 => 'Registrar Empréstimo',
-                'usuarios'              => Usuario::all(),
-                'exemplaresDisponiveis' => Exemplar::allDisponiveis(),
-                'errors'                => $errors,
-                'old'                   => $_POST,
+                'title'    => 'Registrar Empréstimo',
+                'usuarios' => Usuario::all(),
+                'livrosDisponiveis' => Exemplar::livrosComDisponibilidade(),
+                'errors'   => $errors,
+                'old'      => $_POST,
             ]);
             return;
         }
 
         try {
-            Emprestimo::create((int) $usuarioId, (int) $exemplarId, $dataPrevista);
+            Emprestimo::create((int) $usuarioId, (int) $livroId, $dataPrevista);
         } catch (RuntimeException $e) {
             $this->render('emprestimos/form', [
-                'title'                 => 'Registrar Empréstimo',
-                'usuarios'              => Usuario::all(),
-                'exemplaresDisponiveis' => Exemplar::allDisponiveis(),
-                'errors'                => [$e->getMessage()],
-                'old'                   => $_POST,
+                'title'    => 'Registrar Empréstimo',
+                'usuarios' => Usuario::all(),
+                'livrosDisponiveis' => Exemplar::livrosComDisponibilidade(),
+                'errors'   => [$e->getMessage()],
+                'old'      => $_POST,
             ]);
             return;
         }

@@ -95,25 +95,32 @@ class Emprestimo
     }
 
     /**
-     * Registra um novo empréstimo, marcando o exemplar como indisponível.
-     * Executado em transação com trava de linha (FOR UPDATE) para evitar
-     * que dois empréstimos sejam registrados simultaneamente para o mesmo
-     * exemplar (condição de corrida).
+     * Registra um novo empréstimo para um livro: o sistema seleciona
+     * automaticamente um exemplar disponível desse livro (o usuário não
+     * escolhe qual cópia física sai). Executado em transação com trava de
+     * linha (FOR UPDATE) para evitar que dois empréstimos sejam registrados
+     * simultaneamente para o mesmo exemplar (condição de corrida).
      *
-     * @throws RuntimeException Se o exemplar não estiver mais disponível.
+     * @throws RuntimeException Se não houver exemplar disponível para o livro.
      */
-    public static function create(int $usuarioId, int $exemplarId, string $dataPrevistaDevolucao): int
+    public static function create(int $usuarioId, int $livroId, string $dataPrevistaDevolucao): int
     {
         $pdo = Database::getConnection();
         $pdo->beginTransaction();
 
         try {
-            $stmt = $pdo->prepare('SELECT status FROM exemplar WHERE id = :id FOR UPDATE');
-            $stmt->execute(['id' => $exemplarId]);
-            $exemplar = $stmt->fetch();
+            $stmt = $pdo->prepare("
+                SELECT id FROM exemplar
+                WHERE livro_id = :livro_id AND status = 'disponivel'
+                ORDER BY id
+                LIMIT 1
+                FOR UPDATE
+            ");
+            $stmt->execute(['livro_id' => $livroId]);
+            $exemplarId = $stmt->fetchColumn();
 
-            if ($exemplar === false || $exemplar['status'] !== 'disponivel') {
-                throw new RuntimeException('Este exemplar não está mais disponível para empréstimo.');
+            if ($exemplarId === false) {
+                throw new RuntimeException('Não há exemplares disponíveis para este livro no momento.');
             }
 
             $stmt = $pdo->prepare('

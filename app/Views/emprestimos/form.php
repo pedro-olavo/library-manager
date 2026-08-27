@@ -12,10 +12,10 @@
 </div>
 <?php endif; ?>
 
-<?php if (empty($exemplaresDisponiveis)): ?>
+<?php if (empty($livrosDisponiveis)): ?>
 <div style="margin-top: 16px; padding: 12px 16px; background:#fff3cd; color:#8a6d1a; border-radius:4px; font-size:14px;">
-    Não há exemplares disponíveis para empréstimo no momento. Cadastre um exemplar
-    na página de detalhes do livro desejado.
+    Não há livros com exemplares disponíveis para empréstimo no momento. Cadastre
+    um exemplar na página de detalhes do livro desejado.
 </div>
 <?php endif; ?>
 
@@ -33,12 +33,12 @@
     </div>
 
     <div class="field-group">
-        <label for="exemplar_id">Exemplar (livro disponível) *</label>
-        <select id="exemplar_id" name="exemplar_id" required>
+        <label for="livro_id">Livro *</label>
+        <select id="livro_id" name="livro_id" required>
             <option value="">Selecione...</option>
-            <?php foreach ($exemplaresDisponiveis as $exemplar): ?>
-                <option value="<?= $exemplar['id'] ?>" <?= (($old['exemplar_id'] ?? '') == $exemplar['id']) ? 'selected' : '' ?>>
-                    <?= htmlspecialchars($exemplar['livro_titulo']) ?> — <?= htmlspecialchars($exemplar['codigo_patrimonio'] ?? 'sem código') ?>
+            <?php foreach ($livrosDisponiveis as $livro): ?>
+                <option value="<?= $livro['livro_id'] ?>" <?= (($old['livro_id'] ?? '') == $livro['livro_id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($livro['titulo']) ?> (<?= (int) $livro['disponiveis'] ?> disponível<?= $livro['disponiveis'] > 1 ? 'is' : '' ?>)
                 </option>
             <?php endforeach; ?>
         </select>

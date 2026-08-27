@@ -15,10 +15,12 @@ o empréstimo em si.
   (`app/Controllers/ExemplarController.php`);
 - **Empréstimos** (`app/Controllers/EmprestimoController.php`,
   `app/Models/Emprestimo.php`):
-  - Registrar empréstimo: seleciona usuário + exemplar disponível + data
-    prevista de devolução; usa transação com `SELECT ... FOR UPDATE` para
-    evitar que dois empréstimos sejam criados para o mesmo exemplar ao mesmo
-    tempo;
+  - Registrar empréstimo: seleciona usuário + **livro** (não o exemplar
+    específico) + data prevista de devolução. O dropdown de livros mostra
+    apenas os que têm ao menos 1 exemplar disponível, com a contagem
+    (ex: "Dom Casmurro (2 disponíveis)") — o sistema escolhe automaticamente
+    qual cópia física sai, usando transação com `SELECT ... FOR UPDATE` para
+    evitar que dois empréstimos peguem o mesmo exemplar ao mesmo tempo;
   - Registrar devolução: marca a data de devolução e libera o exemplar
     automaticamente;
   - Atraso é recalculado a cada listagem (`Emprestimo::markOverdue()`), sem
@@ -27,11 +29,17 @@ o empréstimo em si.
     administrador/bibliotecário veem e gerenciam todos; registrar empréstimo
     e devolução exige perfil administrador ou bibliotecário;
 - O painel inicial agora mostra a contagem real de empréstimos ativos
-  (antes era um valor fixo em zero).
+  (antes era um valor fixo em zero);
+- **Dados de exemplo já no seed** (`database/init.sql`): os livros "Dom
+  Casmurro" (2 exemplares) e "1984" (1 exemplar) já vêm cadastrados com
+  cópias disponíveis, para que o módulo de empréstimos funcione imediatamente
+  após o primeiro `docker compose up`, sem precisar cadastrar nada manualmente.
 
-Testado de ponta a ponta contra um PostgreSQL real: cadastro de exemplar →
-registro de empréstimo → exemplar muda para "emprestado" → simulação de atraso
-→ devolução → exemplar volta a "disponível" → contadores do dashboard corretos.
+Testado de ponta a ponta contra um PostgreSQL real: formulário mostra os livros
+com contagem de exemplares disponíveis (sem expor o exemplar/código individual)
+→ registro de empréstimo escolhe a cópia automaticamente → exemplar muda para
+"emprestado" → simulação de atraso → devolução → exemplar volta a "disponível"
+→ contadores do dashboard corretos.
 
 ## Entrega Parcial 5 — Autenticação e Controle de Acesso
 

@@ -109,3 +109,32 @@ INSERT INTO usuario (nome, email, senha_hash, perfil) VALUES
     ('Bibliotecário Padrão',     'bibliotecario@biblioteca.com', '$2y$10$7Ngd2Yy00C2hLn7hly.FQ.a9CnO0NnM5WWHmt7i49PIzsctO7Bgkq', 'bibliotecario'),
     ('Leitor Demonstração',      'leitor@biblioteca.com',        '$2y$10$5Jo1TvDJeF.WgXYCbdzKT.tdqeVULajkUYWhDvu.MC7ZWLykege.q', 'leitor')
 ON CONFLICT DO NOTHING;
+
+-- Livros de exemplo, já com exemplares cadastrados, para que o sistema
+-- (incluindo o módulo de empréstimos) fique funcional imediatamente após
+-- o primeiro deploy, sem exigir que o usuário cadastre dados manualmente.
+INSERT INTO livro (titulo, isbn, ano_publicacao, autor_id, editora_id, categoria_id)
+SELECT 'Dom Casmurro', '978-8535910662', 1899,
+       (SELECT id FROM autor WHERE nome = 'Machado de Assis'),
+       (SELECT id FROM editora WHERE nome = 'Companhia das Letras'),
+       (SELECT id FROM categoria WHERE nome = 'Romance')
+WHERE NOT EXISTS (SELECT 1 FROM livro WHERE titulo = 'Dom Casmurro');
+
+INSERT INTO livro (titulo, isbn, ano_publicacao, autor_id, editora_id, categoria_id)
+SELECT '1984', '978-0451524935', 1949,
+       (SELECT id FROM autor WHERE nome = 'George Orwell'),
+       (SELECT id FROM editora WHERE nome = 'Editora Globo'),
+       (SELECT id FROM categoria WHERE nome = 'Ficção')
+WHERE NOT EXISTS (SELECT 1 FROM livro WHERE titulo = '1984');
+
+INSERT INTO exemplar (livro_id, codigo_patrimonio, status)
+SELECT (SELECT id FROM livro WHERE titulo = 'Dom Casmurro'), 'BIB-0001', 'disponivel'
+WHERE NOT EXISTS (SELECT 1 FROM exemplar WHERE codigo_patrimonio = 'BIB-0001');
+
+INSERT INTO exemplar (livro_id, codigo_patrimonio, status)
+SELECT (SELECT id FROM livro WHERE titulo = 'Dom Casmurro'), 'BIB-0002', 'disponivel'
+WHERE NOT EXISTS (SELECT 1 FROM exemplar WHERE codigo_patrimonio = 'BIB-0002');
+
+INSERT INTO exemplar (livro_id, codigo_patrimonio, status)
+SELECT (SELECT id FROM livro WHERE titulo = '1984'), 'BIB-0003', 'disponivel'
+WHERE NOT EXISTS (SELECT 1 FROM exemplar WHERE codigo_patrimonio = 'BIB-0003');
