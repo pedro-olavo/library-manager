@@ -7,8 +7,14 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Habilita o mod_rewrite (necessário para o sistema de rotas)
-RUN a2enmod rewrite
+# Corrige "More than one MPM loaded": algumas variações da imagem base
+# vêm com mais de um Multi-Processing Module do Apache habilitado ao mesmo
+# tempo (prefork + event/worker), o que impede o Apache de iniciar.
+# mod_php só é compatível com mpm_prefork, então desabilitamos os demais
+# explicitamente antes de habilitar o rewrite.
+RUN a2dismod -f mpm_event mpm_worker >/dev/null 2>&1 || true \
+    && a2enmod mpm_prefork \
+    && a2enmod rewrite
 
 # Aponta o document root da aplicação para a pasta public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
