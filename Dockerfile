@@ -38,4 +38,14 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
+# --- DIAGNÓSTICO TEMPORÁRIO (runtime) ---
+# Substitui o comando padrão da imagem por um script que imprime o estado
+# real do Apache no momento em que o CONTAINER efetivamente inicia (não no
+# build), antes de tentar subir o apache2-foreground. Isso elimina qualquer
+# dúvida sobre cache de build, volumes sobrepostos ou start command
+# customizado na plataforma de deploy estarem interferindo.
+RUN sed -i 's/\r$//' /var/www/html/docker-entrypoint-debug.sh \
+    && chmod +x /var/www/html/docker-entrypoint-debug.sh
+CMD ["/var/www/html/docker-entrypoint-debug.sh"]
+
 EXPOSE 80
