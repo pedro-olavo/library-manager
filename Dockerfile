@@ -16,6 +16,16 @@ RUN a2dismod -f mpm_event mpm_worker >/dev/null 2>&1 || true \
     && a2enmod mpm_prefork \
     && a2enmod rewrite
 
+# --- DIAGNÓSTICO TEMPORÁRIO ---
+# Imprime no log de build quais módulos MPM ficaram habilitados e onde
+# existem diretivas LoadModule para mpm em todo o /etc/apache2. Isso vai
+# aparecer no log de BUILD (não no de runtime) e nos diz exatamente por que
+# o erro "More than one MPM loaded" persiste mesmo após o fix acima.
+RUN echo "=== mods-enabled (mpm) ===" \
+    && ls -la /etc/apache2/mods-enabled/ | grep -i mpm \
+    && echo "=== LoadModule mpm em apache2.conf, ports.conf e mods/conf-enabled ===" \
+    && grep -Rn "LoadModule mpm" /etc/apache2/apache2.conf /etc/apache2/ports.conf /etc/apache2/mods-enabled/ /etc/apache2/conf-enabled/ 2>/dev/null || true
+
 # Aponta o document root da aplicação para a pasta public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
