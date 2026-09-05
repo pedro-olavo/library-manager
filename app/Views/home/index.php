@@ -1,9 +1,4 @@
 <h1>Bem-vindo(a), <?= htmlspecialchars(\App\Core\Auth::user()['nome']) ?>!</h1>
-<p style="margin-top: 10px; color: #555;">
-    Painel inicial da aplicação. O total de livros já é consultado diretamente do banco
-    de dados PostgreSQL via PDO. O indicador de empréstimos ativos será implementado
-    quando o módulo de empréstimos for adicionado ao sistema.
-</p>
 
 <div style="display: flex; gap: 20px; margin-top: 24px;">
     <div style="flex:1; border:1px solid #ddd; border-radius:6px; padding:20px; text-align:center;">
