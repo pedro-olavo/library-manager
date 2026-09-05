@@ -7,24 +7,14 @@ RUN apt-get update \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/*
 
-# Corrige "More than one MPM loaded": algumas variações da imagem base
-# vêm com mais de um Multi-Processing Module do Apache habilitado ao mesmo
-# tempo (prefork + event/worker), o que impede o Apache de iniciar.
-# mod_php só é compatível com mpm_prefork, então desabilitamos os demais
-# explicitamente antes de habilitar o rewrite.
+# Corrige "More than one MPM loaded" no build: algumas variações da imagem
+# base vêm com mais de um Multi-Processing Module do Apache habilitado ao
+# mesmo tempo (prefork + event/worker). mod_php só é compatível com
+# mpm_prefork. A correção definitiva (que também roda a cada boot do
+# container, por segurança) está em docker-entrypoint.sh.
 RUN a2dismod -f mpm_event mpm_worker >/dev/null 2>&1 || true \
     && a2enmod mpm_prefork \
     && a2enmod rewrite
-
-# --- DIAGNÓSTICO TEMPORÁRIO ---
-# Imprime no log de build quais módulos MPM ficaram habilitados e onde
-# existem diretivas LoadModule para mpm em todo o /etc/apache2. Isso vai
-# aparecer no log de BUILD (não no de runtime) e nos diz exatamente por que
-# o erro "More than one MPM loaded" persiste mesmo após o fix acima.
-RUN echo "=== mods-enabled (mpm) ===" \
-    && ls -la /etc/apache2/mods-enabled/ | grep -i mpm \
-    && echo "=== LoadModule mpm em apache2.conf, ports.conf e mods/conf-enabled ===" \
-    && grep -Rn "LoadModule mpm" /etc/apache2/apache2.conf /etc/apache2/ports.conf /etc/apache2/mods-enabled/ /etc/apache2/conf-enabled/ 2>/dev/null || true
 
 # Aponta o document root da aplicação para a pasta public/
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
@@ -38,14 +28,12 @@ WORKDIR /var/www/html
 
 COPY . /var/www/html
 
-# --- DIAGNÓSTICO TEMPORÁRIO (runtime) ---
-# Substitui o comando padrão da imagem por um script que imprime o estado
-# real do Apache no momento em que o CONTAINER efetivamente inicia (não no
-# build), antes de tentar subir o apache2-foreground. Isso elimina qualquer
-# dúvida sobre cache de build, volumes sobrepostos ou start command
-# customizado na plataforma de deploy estarem interferindo.
-RUN sed -i 's/\r$//' /var/www/html/docker-entrypoint-debug.sh \
-    && chmod +x /var/www/html/docker-entrypoint-debug.sh
-CMD ["/var/www/html/docker-entrypoint-debug.sh"]
+# O entrypoint reaplica a correção de MPM a cada início de container (não
+# apenas no build), garantindo que o Apache suba corretamente mesmo que a
+# plataforma de deploy reintroduza o módulo conflitante de alguma forma que
+# não conseguimos reproduzir/depurar diretamente.
+RUN sed -i 's/\r$//' /var/www/html/docker-entrypoint.sh \
+    && chmod +x /var/www/html/docker-entrypoint.sh
+CMD ["/var/www/html/docker-entrypoint.sh"]
 
 EXPOSE 80
